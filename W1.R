@@ -360,3 +360,105 @@ with(airquality, {
         plot(Temp, Ozone, main = "Ozone and Temperature")
         mtext("Ozone and Weather in New York City", outer = TRUE)
         })
+
+################################################################################
+                              # Lesson  3 # 
+################################################################################
+
+
+# Graphics Devices
+
+# A graphics device is something where you can make a plot appear. Examples
+# include
+# • A window on your computer (screen device) --- windows()
+# • A PDF file (file device)
+# • A PNG or JPEG file (file device)
+# • A scalable vector graphics (SVG) file(file device)
+
+# the question: how will be used the plot -- determines the graphic deised to be used
+
+
+# 1. in exploratory analysis:
+
+# There are two basic approaches to plotting. The first is most common. This 
+# involves
+# 1. Call a plotting function like plot, xyplot, or qplot 
+# 2. The plot appears on the screen device
+# 3. Annotate the plot if necessary
+# 4. Enjoy
+
+par(mfrow= c(1,1), mar = c(3,3,2,2))
+## Make plot appear on screen device 
+with(faithful, plot(eruptions, waiting)) 
+## Annotate with a title 
+title(main = "Old Faithful Geyser data")
+
+#  2. in analysis for a publication --- explicitly launch a graphic device
+
+# The second basic approach to plotting is most commonly used for file devices:
+
+# 1. Explicitly launch a graphics device
+# 2. Call a plotting function to make a plot (Note: if you are using a file 
+#    device, no plot will appear on the screen)
+# 3. Annotate the plot if necessary
+# 4. Explicitly close graphics devic ewith dev.off() (this is very important!)
+
+# Open PDF device; create 'myplot.pdf' in my working directory 
+pdf(file = "myplo1t.pdf") 
+# Create plot and send to a file (no plot appears on screen) 
+with(faithful, plot(eruptions, waiting)) >  
+# Annotate plot; still nothing on screen 
+title(main = "Old Faithful Geyser data") 
+## Close the PDF file device 
+dev.off()  # Now you can view the file 'myplot.pdf' on your computer
+
+# Graphics File Devices
+
+# There are two basic types of file devices to consider: vector and bitmap devices.
+
+# Vector formats are good for line drawings and plots with solid colors using a 
+# modest number of point
+
+# Some of the key vector  (RESIZE) formats are: 
+# • Pdf
+# • svg
+# • win.metafile
+# • postscrips
+
+# Bitmap formats are good for plots with a large number of points, natural scenes
+# or web-based plots
+
+# Some of the key vector (DONT RESIZE) formats are: 
+# • png
+# • jpeg
+# • tiff
+# • bmp
+
+# Multiple Graphic Devices
+
+# It is possible to plot in multiple devices. But the plotting occurs at one graphic
+# devices at a time
+
+# some commands
+# currently active device:
+dev.cur()
+
+# change the active graphics device 
+dev.set()
+
+# Copy plot form one device to another
+
+dev.copy()
+dev.copy2pdf()  # specifically to copy a plot from the current device to a PDF file.
+
+library(datasets) 
+# Create plot on screen device 
+with(faithful, plot(eruptions, waiting)) 
+# Add a main title 
+title(main = "Old Faithful Geyser data") 
+# Copy my plot to a PNG file 
+dev.copy(png, file = "geyserplot.png") # best resolution  
+dev.copy2pdf(file ="t.pdf") 
+# Don't forget to close the PNG device! 
+dev.off()
+        
