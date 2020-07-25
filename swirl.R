@@ -63,3 +63,59 @@ west <- subset(pollution, region == "west")
 plot(west$latitude, west$pm25, main = "West")
 
 plot(east$latitude, east$pm25, main = "East")
+
+################################################################################
+swirl()
+
+?Devices
+
+with(faithful, plot(eruptions, waiting))
+title(main = "Old Faithful Geyser data") 
+
+dev.cur()
+
+pdf(file = "myplot.pdf") 
+
+with(faithful, plot(eruptions, waiting))
+title(main = "Old Faithful Geyser data") 
+
+dev.cur()
+
+dev.off()
+
+dev.cur()
+
+with(faithful, plot(eruptions, waiting))
+title(main = "Old Faithful Geyser data")
+dev.copy(png, file = "geyserplot.png")
+
+dev.off()
+
+################################################################################
+
+head(cars)
+
+with(cars, plot(speed, dist))
+text(mean(cars$speed), max(cars$dist), "SWIRL rules!")
+
+# The lattice system is most useful for conditioning types of plots which display how y
+# changes with x across levels of z
+
+head(state)
+
+table(state$region)
+
+xyplot( Life.Exp ~ Income | region, data = state, layout = c(4,1))
+
+xyplot( Life.Exp ~ Income | region, data = state, layout = c(2,2))
+
+# No need for you to worry about margins or labels. The
+# package took care of all that for you.
+
+head(mpg)
+
+dim(mpg)
+
+table(mpg$model)
+
+qplot(displ, hwy, data = mpg)
