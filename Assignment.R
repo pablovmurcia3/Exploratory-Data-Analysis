@@ -9,27 +9,24 @@ unzip(zipfile="./data/UCexdata_data_household_power_consumption.zip",
 
 
 library(data.table)
-
 household <- fread("./data/household_power_consumption.txt",
                    skip = grep("1/2/2007",
                                readLines("./data/household_power_consumption.txt"))[1]-1,
                    nrows = 2880
 )
-
 header <- fread("./data/household_power_consumption.txt", nrows = 1, header = FALSE)
-
 colnames(household) <- unlist(header)
+remove(header)
 
+dt <- paste(household$Date, household$Time)
+datetime <- strptime(dt, format="%d/%m/%Y %H:%M:%S")
+household <- cbind(datetime, household)
 
+time <- strptime(household$Time, format="%H:%M:%S")
 
 
 library(lubridate)
-
-household$Date <- dmy(household$Date)
-household$Time <- hms(household$Time)
-
-sum(complete.cases(household))
-
+table(weekdays(household$datetime))
 
 # Plots
 
@@ -38,5 +35,6 @@ sum(complete.cases(household))
 hist(household$Global_active_power, xlab = "Global active power (kilowatt)",
      main ="Global active power", col = "red")
 # 2
+dev_null <- Sys.setlocale("LC_TIME", "english")
+with(household, plot(datetime,Global_active_power, type = "l"))
 
-with(household, plot(Time,Global_active_power, type = "b",xaxt='n'))
