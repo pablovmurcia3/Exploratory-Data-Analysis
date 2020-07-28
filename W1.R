@@ -428,7 +428,7 @@ dev.off()  # Now you can view the file 'myplot.pdf' on your computer
 # Bitmap formats are good for plots with a large number of points, natural scenes
 # or web-based plots
 
-# Some of the key vector (DONT RESIZE) formats are: 
+# Some of the key bitmap (DONT RESIZE) formats are: 
 # • png
 # • jpeg
 # • tiff
