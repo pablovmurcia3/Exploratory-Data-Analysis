@@ -86,3 +86,68 @@ xyplot(allergen ~ VisitNum | MxNum,
        main = "Mouse Allergen and Asthma Cohort Study (Baltimore City)"
 )
 ################################################################################
+                                # Lesson 2 # 
+################################################################################
+
+# The ggplot2 package in R is an implementation of The Grammar of Graphics as 
+# described by Leland Wilkins on in his book
+
+# The grammar of graphics represents an abstraction of graphics ideas and objects.
+# You can think of this as developing the verbs,nouns, and adjectives for 
+# data graphics.
+
+# Plots are made up of aesthetics (size,shape,color) and geoms(points,lines).
+
+
+### The basic function: qplot --- analgous to plot
+# Important: Factors need to be labeled 
+f <- factor(f, labels = c("Group 1", "Group 2"))
+
+library(ggplot2)
+str(mpg)
+
+qplot(displ, hwy, data = mpg)
+
+# Modifyng aesthetics
+
+qplot(displ, hwy, data = mpg, col = drv) 
+
+# Color is an aesthetic and the color of each point can be mapped to a variable.
+# Note that the x-coordinates and y-coordinates are aesthetics too, and they got 
+# mapped to the displ and hwy variables,respectively. In this case we will map 
+# the color to the drv variable.
+
+
+# Adding a geom 
+
+qplot(displ, hwy, data = mpg, geom = c("point", "smooth")) 
+
+# Only specify one variable -- Histogram
+
+qplot(hwy, data = mpg, fill = drv) 
+
+qplot(drv, hwy, data = mpg, geom = "boxplot")
+
+# Facets --- like panels 
+
+# The facets argument expects a formula type of input, with a ∼ separating the
+# left hand side variable and the right hand side variable. The left hand side
+# variable indicates how the rows of the panels should be divided and the right
+# hand side variable indicates how the columns of the panels should be divided
+
+qplot(displ, hwy, data = mpg, facets =  .~ drv) # we will divided the columns of
+# the panesl by drv (nothing in rows (.))
+qplot(hwy, data = mpg, facets =  drv ~ ., binwidth =  2)
+
+qplot(displ, hwy, data = mpg, facets = . ~ drv) + geom_smooth()
+# or geom as and argument 
+qplot(displ, hwy, data = mpg, facets = . ~ drv, geom = c("point", "smooth"))
+
+# case study
+
+if(!file.exists("./data")){dir.create("./data")}
+fileUrl <- "https://github.com/lupok2001/datasciencecoursera/raw/master/maacs.Rda"
+download.file(fileUrl,destfile="./data/maacs.Rda", method = "curl")
+
+
+
