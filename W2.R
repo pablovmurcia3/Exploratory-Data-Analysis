@@ -121,7 +121,7 @@ qplot(displ, hwy, data = mpg, col = drv)
 # Adding a geom 
 
 qplot(displ, hwy, data = mpg, geom = c("point", "smooth")) 
-
+qplot(displ, hwy, data = mpg) + geom_smooth(method = 'loess')
 # Only specify one variable -- Histogram
 
 qplot(hwy, data = mpg, fill = drv) 
@@ -147,7 +147,39 @@ qplot(displ, hwy, data = mpg, facets = . ~ drv, geom = c("point", "smooth"))
 
 if(!file.exists("./data")){dir.create("./data")}
 fileUrl <- "https://github.com/lupok2001/datasciencecoursera/raw/master/maacs.Rda"
-download.file(fileUrl,destfile="./data/maacs.Rda", method = "curl")
+download.file(fileUrl,destfile="./data/maacs.Rda", mode = "wb")
+load("./data/maacs.Rda")
 
+str(maacs)
+as.numeric(maacs$mopos)
+levels(maacs$mopos)
 
+# one dimensional 
 
+qplot(log(eno), data = maacs, binwidth = 0.07)
+
+qplot(log(eno), data = maacs, binwidth = 0.1, fill = mopos)
+
+qplot(log(eno), data = maacs, geom = "density")
+
+qplot(log(eno), data = maacs, geom = "density", color = mopos)
+
+# some scatterplots
+
+qplot(log(pm25), log(eno), data = maacs)
+
+qplot(log(pm25), log(eno), data = maacs, shape = mopos)
+
+qplot(log(pm25), log(eno), data = maacs, color = mopos)
+
+qplot(log(pm25), log(eno), data = maacs, color = mopos) +
+        geom_smooth(method = "lm")
+
+# with facets
+
+qplot(log(pm25), log(eno), data = maacs, facets = .~ mopos) +
+        geom_smooth(method = "lm")
+
+# The qplot() function in ggplot2 is the analog of plot() in base graphics but 
+# with many built-in features that the traditionaly plot() does not provide. The
+# syntax is somewhere in between the base and lattice graphics system
