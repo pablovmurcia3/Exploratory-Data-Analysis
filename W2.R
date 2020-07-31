@@ -183,3 +183,161 @@ qplot(log(pm25), log(eno), data = maacs, facets = .~ mopos) +
 # The qplot() function in ggplot2 is the analog of plot() in base graphics but 
 # with many built-in features that the traditionaly plot() does not provide. The
 # syntax is somewhere in between the base and lattice graphics system
+
+################################################################################
+
+library(ggplot2)
+
+# Basic components of a ggplot 2
+
+# Data frame
+# Aesthetic mapping: :describe how data are mapped to color,size,shape,location 
+# Geoms: geometric objects like points,lines,shapes. 
+# Facets: describes how conditional/panel plots should be constructed
+# Stats: statistical transformations like binning,quantiles,smoothing. 
+# Scales: what scale an aesthetic map uses (example:male=red,female=blue).
+# Coordinate system
+
+# In ggplot 2 Plots are built up in layers
+# 1. plot the data (basic aesthetics-- axis)
+# 2. Overlay a summary (Stats)
+# 3. Metadata and annotations
+
+if(!file.exists("./data")){dir.create("./data")}
+fileUrl <- "https://github.com/lupok2001/datasciencecoursera/raw/master/maacs.Rda"
+download.file(fileUrl,destfile="./data/maacs.Rda", mode = "wb")
+load("./data/maacs.Rda")
+
+
+# First with the basics: qplot
+
+qplot(logpm25, NocturnalSympt, data = maacs, 
+      facets = .~ bmicat, geom = c("point", "smooth"), method = "lm")
+
+# Building up in layers
+
+# 1.data frame
+maacs
+# 2. Initial call 
+g <- ggplot(maacs, aes(logpm25, NocturnalSympt) )
+# 3. Summary ggplot object
+summary(g)
+# Not plot yet!!!
+# 4. Add geoms!
+p <- g + geom_point() # no arguments, because g have all the information that 
+# the geom_point function need
+p
+# or
+g + geom_point() 
+
+### adding more layers
+
+## smooth
+
+g + geom_point() + geom_smooth()
+
+# take out noise with lineal regression line
+
+g + geom_point() + geom_smooth(method = "lm")
+
+## Facets
+
+g + geom_point() + facet_grid(.~ bmicat) +  geom_smooth(method = "lm")
+
+ #### it doesnt matter the order of the addings ####
+#### labels in each panel come from the labels of the factor variables ####
+
+### Annotation 
+
+# You can use xlab() for x-axis labels, ylab() for y-axis labels, and ggtitle()
+# or labs that is generic
+# Each "geom" function have options to modify 
+# For things that only make sense globally, use theme(), i.e. theme(legend.position = "none").
+# Standard appearance themes : themes_???
+
+### modifyng Aesthetics
+
+## assigning a aesthetic  constant
+
+g + geom_point(color = "steelblue", size = 4, alpha = 1/2)
+
+## assigning a aesthetic  to correspond a variable
+
+g + geom_point(aes(color = bmicat), size = 4, alpha = 1/2)
+
+# We map the color aesthetic color to the variable bmicat, so the points will be
+# colored according to the levels of bmicat
+
+### Modifying labels
+
+g + geom_point(aes(color = bmicat)) + labs(title = "MAACs Cohort") + 
+        labs(x = expression(" log "*PM[25]), y = "Nocturnal Symptoms" )
+
+### Customizing the Smooth
+
+g + geom_point(aes(color = bmicat), size = 4, alpha = 1/2) +
+        geom_smooth( size = 1.4, linetype = 3, method = "lm", se = FALSE, col = "Black")
+# set the cofindence intervals off
+
+### Changing  the Theme
+
+g + geom_point(aes(color = bmicat)) + theme_bw()
+g + geom_point(aes(color = bmicat)) + theme_bw(base_family = "Times")
+
+#### notes about Axis limits
+
+# in base system 
+
+testdat <- data.frame(x = 1:100, y = rnorm(100))
+testdat[50,2] <- 100 ## Outlier! 
+plot(testdat$x, testdat$y, type = "l")
+plot(testdat$x, testdat$y, type = "l", ylim = c(-3,3))
+
+# in ggplot
+
+g <- ggplot(testdat, aes(x = x, y = y)) 
+g + geom_line()
+
+# Modifying the ylim() attribute would seem to give you the same thing as the
+# base plot, but it doesn’t.
+
+g + geom_line() + ylim(-3, 3)
+
+# Effectively, what this does is subset the data so that only observations between
+# -3 and 3 are included,then plot the data.
+
+# To plot the data without subsetting it first and still get the restricted 
+# range, you have to do the following.
+
+g + geom_line() + coord_cartesian(ylim = c(-3, 3))
+
+
+#### More complex example
+
+cutpoints <- quantile(maacs$logno2_new, seq(0, 1, length = 4), na.rm = TRUE)
+
+maacs$no2tert <- cut(maacs$logno2_new, cutpoints)
+
+levels(maacs$no2tert)
+
+
+# plot 
+
+g <- ggplot(maacs, aes(logpm25, NocturnalSympt))
+
+g + geom_point(alpha = 1/3) +
+        facet_grid(bmicat ~ no2tert) +
+        geom_smooth(method="lm", se=FALSE, col="steelblue") +
+        theme_bw(base_family = "Avenir", base_size = 10) +
+        labs(x = expression("log " * PM[2.5])) +
+        labs(y = "Nocturnal Symptoms") +
+        labs(title = "MAACS Cohort")
+
+
+g + geom_point(alpha = 1/3) +
+        facet_wrap(bmicat ~ no2tert, nrow = 2, ncol = 4) +
+        geom_smooth(method="lm", se=FALSE, col="steelblue") +
+        theme_bw(base_family = "Avenir", base_size = 10) +
+        labs(x = expression("log " * PM[2.5])) +
+        labs(y = "Nocturnal Symptoms") +
+        labs(title = "MAACS Cohort")
