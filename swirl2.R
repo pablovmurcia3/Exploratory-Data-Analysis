@@ -249,7 +249,7 @@ g + geom_point(alpha = 1/3) + facet_grid(cut ~ car2) +
 
 # boxplots 
 
-ggplot(diamonds, aes(carat, price)) + geom_boxplot() + facet_grid(.~cut)
+ggplot(diamonds, aes(car2, price)) + geom_boxplot() + facet_grid(.~cut)
 
 ggplot(diamonds, aes(y = price)) + geom_boxplot() + facet_grid(.~cut)
 
