@@ -101,7 +101,7 @@ xyplot(allergen ~ VisitNum | MxNum,
 
 ### The basic function: qplot --- analgous to plot
 # Important: Factors need to be labeled 
-f <- factor(f, labels = c("Group 1", "Group 2"))
+f <- afactor(f, labels = c("Group 1", "Group 2"))
 
 library(ggplot2)
 str(mpg)
@@ -121,7 +121,7 @@ qplot(displ, hwy, data = mpg, col = drv)
 # Adding a geom 
 
 qplot(displ, hwy, data = mpg, geom = c("point", "smooth")) 
-qplot(displ, hwy, data = mpg) + geom_smooth(method = 'loess')
+qplot(displ, hwy, data = mpg) +  geom_smooth(method = 'loess')
 # Only specify one variable -- Histogram
 
 qplot(hwy, data = mpg, fill = drv) 
@@ -243,6 +243,7 @@ g + geom_point() + geom_smooth(method = "lm")
 ## Facets
 
 g + geom_point() + facet_grid(.~ bmicat) +  geom_smooth(method = "lm")
+g + geom_point() + facet_wrap(.~ bmicat) +  geom_smooth(method = "lm")
 
  #### it doesnt matter the order of the addings ####
 #### labels in each panel come from the labels of the factor variables ####
