@@ -255,4 +255,60 @@ ggplot(diamonds, aes(price)) + geom_boxplot() + facet_grid(.~cut)
 ggplot(diamonds, aes(y = price)) + geom_boxplot() # ????? 
 qplot(y = price, data = diamonds, geom = "boxplot")
 
+################################################################################
 
+library(swirl)
+
+swirl()
+
+sample(colors(), 10)
+
+pal <- colorRamp( c("red","blue"))
+
+pal(0)
+
+pal(1)
+
+pal(seq(0,1,len=6))
+
+p1 <- colorRampPalette(c("red","blue"))
+
+p1(2)
+
+p1(6)
+
+0xcc 
+
+# https://www.coursera.org/learn/exploratory-data-analysis/discussions/weeks/2/threads/UGBwm5kgEeeMZA62eMANtA
+
+
+# Continue swirl "working with colors in week 3"
+
+################################################################################
+
+library(nlme)
+library(lattice)
+xyplot(weight ~ Time | Diet, data =BodyWeight,
+       lines= "saSas")
+
+
+library(lattice)
+library(datasets)
+data(airquality)
+p <- xyplot(Ozone ~ Wind | factor(Month), data = airquality)
+p
+
+
+?splom
+qplot(Wind, Ozone, data = airquality, facets = . ~ factor(Month))
+
+
+airquality = transform(airquality, Month = factor(Month))
+qplot(Wind, Ozone, data = airquality, facets = . ~ Month)
+
+install.packages("ggplot2movies")
+library(ggplot2)
+library(ggplot2movies)
+g <- ggplot(movies, aes(votes, rating))
+print(g)
+qplot(votes, rating, data = movies) + geom_smooth()
