@@ -69,9 +69,7 @@ xyplot(price ~ carat | color*cut, data = diamonds, strip = FALSE, pch = 20,
        main = mymain)
 
 xyplot(price ~ carat | color*cut, data = diamonds, pch = 20, 
-       xlab = myxlab,
-       ylab = myylab,
-       main = mymain)
+     )
 
 ################################################################################
 
@@ -161,8 +159,8 @@ g + geom_line() + ylim(-3,3)
 g + geom_line() + coord_cartesian(ylim = c(-3,3))
 
 g <- ggplot(mpg, aes(x = displ, y = hwy, color = factor(year))) 
-g + geom_point() ### REVIAR.. INTENTAR OTRA FORMA
-# or 
+g + geom_point() 
+
 g <- ggplot(mpg, aes(x = displ, y = hwy))
 g + geom_point(aes(color = factor(year)))
 
@@ -251,10 +249,10 @@ g + geom_point(alpha = 1/3) + facet_grid(cut ~ car2) +
 
 ggplot(diamonds, aes(car2, price)) + geom_boxplot() + facet_grid(.~cut)
 
-ggplot(diamonds, aes(y = price)) + geom_boxplot() + facet_grid(.~cut)
+ggplot(diamonds, aes(price)) + geom_boxplot() + facet_grid(.~cut)
 
 
 ggplot(diamonds, aes(y = price)) + geom_boxplot() # ????? 
+qplot(y = price, data = diamonds, geom = "boxplot")
 
-qplot(y =price, data = diamonds, geom = "boxplot")
 
