@@ -129,3 +129,65 @@ heatmap(dataMatrix)
 # and calls hclust() on those values. The end result is that you get a dendrogram
 # associated with both the rows and columns of a matrix, which can help you to 
 # spot obvious patterns in the data.
+
+################################################################################
+                                # Lesson 2 # 
+################################################################################
+
+
+#### K-Means Clustering
+
+### Requires:
+# A defined Distance
+# A numver of clusters
+# An initial guess as to cluester centroids
+
+## Distance
+# Continous - euclidean, correlation
+# Binary - manhattan
+
+### A partioning approach
+
+# fix a number of clusters
+# Get "centroids
+# assign things to closest centroid
+# Recalculate the centroids
+
+
+## Produces 
+
+# Final estimate of cluster centroids
+# An assignment of each point to cluster
+
+set.seed(1234)
+x <- rnorm(12, mean = rep(1:3, each = 4), sd = 0.2)
+y <- rnorm(12, mean = rep(c(1, 2, 1), each = 4), sd = 0.2)
+plot(x, y, col = "blue", pch = 19, cex = 2)
+text(x + 0.05, y + 0.05, labels = as.character(1:12))
+
+# kmeans()
+
+dataFrame <- data.frame(x, y)
+kmeansObj <- kmeans(dataFrame, centers = 3, iter.max  = 10) # returns a list
+# REALLy IMPORTANT: iter.max number of different starting points
+names(kmeansObj)
+
+kmeansObj$cluster # Tindicates the cluster of the points in a dataframe
+kmeansObj$centers # the location of the clusters in the space
+
+plot(x, y, col = kmeansObj$cluster , pch = 19, cex = 2)
+points(kmeansObj$centers, col = 1:3, pch = 3, cex = 3, lwd =3)
+
+### Heatmaps
+
+set.seed(1234)
+dataMatrix <- as.matrix(dataFrame)[sample(1:12), ]
+kmeansObj <- kmeans(dataMatrix, centers = 3, iter.max  = 100)
+
+# Then we can make an image plot using the K-means clusters.
+
+par(mfrow = c(1, 2))
+image(t(dataMatrix)[, nrow(dataMatrix):1], yaxt = "n", main = "Original Data")
+image(t(dataMatrix)[, order(kmeansObj$cluster)], yaxt = "n", main = "Clustered Data")
+
+dataMatrix[order(kmeansObj$cluster),] # up-side down :()
