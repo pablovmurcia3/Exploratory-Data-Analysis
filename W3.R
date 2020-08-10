@@ -139,8 +139,8 @@ heatmap(dataMatrix)
 
 ### Requires:
 # A defined Distance
-# A numver of clusters
-# An initial guess as to cluester centroids
+# A number of clusters
+# An initial guess as to cluster centroids
 
 ## Distance
 # Continous - euclidean, correlation
@@ -149,7 +149,7 @@ heatmap(dataMatrix)
 ### A partioning approach
 
 # fix a number of clusters
-# Get "centroids
+# Get "centroids"
 # assign things to closest centroid
 # Recalculate the centroids
 
@@ -168,7 +168,7 @@ text(x + 0.05, y + 0.05, labels = as.character(1:12))
 # kmeans()
 
 dataFrame <- data.frame(x, y)
-kmeansObj <- kmeans(dataFrame, centers = 3, iter.max  = 10) # returns a list
+kmeansObj <- kmeans(dataFrame, centers = 3, iter.max  = 100) # returns a list
 # REALLy IMPORTANT: iter.max number of different starting points
 names(kmeansObj)
 
