@@ -191,3 +191,35 @@ image(t(dataMatrix)[, nrow(dataMatrix):1], yaxt = "n", main = "Original Data")
 image(t(dataMatrix)[, order(kmeansObj$cluster)], yaxt = "n", main = "Clustered Data")
 
 dataMatrix[order(kmeansObj$cluster),] # up-side down :()
+
+
+################################################################################
+                                # Lesson 3 # 
+################################################################################
+
+### Principal components analysis and singular value decomposition 
+
+set.seed(12345)
+dataMatrix <- matrix(rnorm(400), nrow = 40)
+par(mar =rep(2,4))
+image(1:10, 1:40, t(dataMatrix)[, nrow(dataMatrix):1])
+
+par(mar =rep(0.2,4))
+heatmap(dataMatrix)
+
+
+# Add a pattern 
+set.seed(678910)
+for (i in 1:40) {
+        coinFlip <- rbinom(1, size = 1, prob = 0.5)
+        if (coinFlip) {
+                dataMatrix[i, ] <- dataMatrix[i, ] + rep(c(0, 3), each = 5)
+                }
+}
+
+par(mar =rep(2,4))
+heatmap(dataMatrix) # two set of column are clearly splited
+
+
+
+
