@@ -75,3 +75,82 @@ mt
 plot(denmt)
 
 distmt
+
+################################################################################
+
+# k-means method "aims to partition the points into k groups such that the sum 
+# of squares from points to the assigned cluster centres is minimized."
+
+# Need a distance: Euclidean
+
+# The process stops once you reach an iteration in which no adjustments are made 
+# or when you've reached some predetermined maximum number of iterations.
+
+cmat
+
+points(cx, cy, col = c("red", "orange", "purple"), pch = 3, cex = 2, lwd = 2)
+
+mdist(x, y, cx, cy)
+
+apply(distTmp, 2, which.min) # remember Apply function!!
+
+points(x, y, pch = 19, cex = 2, col = cols1[newClust]) # Interesting annotation 
+
+# Recalculate the centroids (by the mean of the existing clusters)
+
+tapply(x, newClust, mean)
+
+tapply(y, newClust, mean)
+
+points(newCx, newCy, col = cols1, pch = 8, cex = 2, lwd = 2)
+
+# For the new centroids, group the nearest points
+
+mdist(x, y, newCx, newCy)
+
+apply(distTmp2, 2, which.min)
+
+points(x, y, pch = 19, cex = 2, col = cols1[newClust2]) 
+
+# and again get the mean 
+
+tapply(x, newClust2, mean)
+
+tapply(y, newClust2, mean)
+
+points(finalCx, finalCy, col = cols1, pch = 9, cex = 2, lwd = 2)
+
+# The coomand that do all in one step 
+
+# Now that you've gone through an example step by step, you'll be relieved to hear
+# that R provides a command to do all this work for you. Unsurprisingly it's called
+# kmeans and, although it has several parameters, we'll just mention four. These are
+# x, (the numeric matrix of data), centers, iter.max, and nstart. The second of
+# these (centers) can be either a number of clusters or a set of initial centroids.
+# the third, iter.max, specifies the maximum number of iterations to go through, and
+# nstart is the number of random starts you want to try if you specify centers as a
+# number.
+
+# 1. interesting = difference iter.max and nstart 
+
+kmeans(dataFrame, centers = 3)
+
+kmObj$iter
+
+points(x, y, pch = 19, cex = 2, col = cols1[newClust2]) 
+
+
+
+plot(x,y,col=kmObj$cluster,pch=19,cex=2)
+points( kmObj$centers, col = c("black","red","green"), pch = 3, cex = 3, lwd = 3)
+
+
+kmeans(dataFrame, centers = 6)
+
+plot(x,y,col= kmeans(dataFrame,6)$cluster, pch=19,cex=2)
+
+plot(x,y,col= kmeans(dataFrame,6)$cluster, pch=19,cex=2)
+
+plot(x,y,col= kmeans(dataFrame,6, nstart = 10)$cluster, pch=19,cex=2) # revisar
+
+
