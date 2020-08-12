@@ -199,16 +199,32 @@ dataMatrix[order(kmeansObj$cluster),] # up-side down :()
 
 ### Principal components analysis and singular value decomposition 
 
+# Matrix data have some special statistical methods that can be applied to them. One
+# category of statistical dimension reduction techniques is commonly called principal
+# components analysis (PCA) or the singular value decomposition (SVD)
+
 set.seed(12345)
 dataMatrix <- matrix(rnorm(400), nrow = 40)
-par(mar =rep(2,4))
+par(mar = c(4,4,2,2))
 image(1:10, 1:40, t(dataMatrix)[, nrow(dataMatrix):1])
+?image
+image(t(dataMatrix)[, nrow(dataMatrix):1]) # you need to reverse the matrix
 
-par(mar =rep(0.2,4))
-heatmap(dataMatrix)
+# small investigation to order the matrix in Hirarchicall Clustering ###########
+heat <- heatmap(dataMatrix)
+class(heat)
 
+rev(heat$rowInd)
+heat$colInd
+
+dataclust <- dataMatrix[rev(heat$rowInd), heat$colInd]
+################################################################################
 
 # Add a pattern 
+
+# In the code below, we cycle through all the rows of the matrix and randomly 
+# add 3 to the last 5 columns of the matrix.
+
 set.seed(678910)
 for (i in 1:40) {
         coinFlip <- rbinom(1, size = 1, prob = 0.5)
@@ -217,9 +233,60 @@ for (i in 1:40) {
                 }
 }
 
-par(mar =rep(2,4))
-heatmap(dataMatrix) # two set of column are clearly splited
+image(1:10, 1:40, t(dataMatrix)[, nrow(dataMatrix):1])
+heatmap(dataMatrix) # two set of column are clearly splitted
+
+# We can display this a bit more explicitly by
+# looking at the row and column means of the data.
 
 
+
+library(dplyr)
+hh <- dist(dataMatrix) %>% hclust
+hh$order
+
+source("myplclust.R")
+myplclust(hh,lab=rep(1:3,each=4),lab.col=rep(1:3,each=4))
+
+
+dataMatrixOrdered <- dataMatrix[hh$order, ]
+par(mfrow = c(1, 3))
+
+## Complete data
+image(t(dataMatrixOrdered)[, nrow(dataMatrixOrdered):1])
+
+## Show the row means
+plot(rowMeans(dataMatrixOrdered), 40:1, xlab = "Row Mean", ylab = "Row", pch = 19)
+
+## Show the column means
+plot(colMeans(dataMatrixOrdered), xlab = "Column", ylab = "Column Mean", pch = 19)
+
+
+# However, there may be other patterns beyond a simple mean shift and so more
+# sophisticated methods will be needed. 
+
+# So.. you have a very large matrix (with many variables)
+
+# 1. The goal is to find a new set of variables/features that are uncorrelated and 
+# explain as much variance in the data as possible. 
+
+# 2.if you were to put all these multivariate observations together in one matrix, 
+# find the best matrix created with fewer variables (lower rank) that explains
+# the original data.
+
+# The first goal is statistical in nature and the second goal is perhaps better
+# characterized as lossy data compression. 
+# (FIRST: PCA, SECOND: SVD)
+
+
+# SVD
+
+# PCA (uses SVD)
+
+################################################################################
+                                # Lesson 3 # 
+################################################################################
+
+# Plotting and color in R
 
 
