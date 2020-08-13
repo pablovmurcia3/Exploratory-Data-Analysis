@@ -151,6 +151,65 @@ plot(x,y,col= kmeans(dataFrame,6)$cluster, pch=19,cex=2)
 
 plot(x,y,col= kmeans(dataFrame,6)$cluster, pch=19,cex=2)
 
-plot(x,y,col= kmeans(dataFrame,6, nstart = 10)$cluster, pch=19,cex=2) # revisar
+plot(x,y,col= kmeans(dataFrame,6, nstart = 10)$cluster, pch=19,cex=2) 
+
+###############################################################################
+
+sample(colors(),10)
+
+pal <- colorRamp(c("red","blue")) 
+
+pal(0)
+        
+pal(1)
+
+pal(seq(0,1,len=6))
 
 
+p1 <- colorRampPalette(c("red","blue"))
+
+p1(2) # hexadecimal characters
+
+p1(6)
+
+0xcc
+
+p2 <-colorRampPalette(c("red","yellow"))
+
+p2(2)
+
+p2(10)
+
+showMe(p1(20))
+
+showMe(p2(20))
+
+showMe(p2(2))
+
+p1
+
+?rgb
+
+p3 <- colorRampPalette(c("blue", "green"), alpha =.5)
+
+p3(5)
+
+plot(x, y, pch = 19, col = rgb(0,0.5,0.5))
+
+plot(x, y, pch = 19, col = rgb(0,0.5,0.5, 0.3))
+
+
+cols <- brewer.pal(3, "BuGn") 
+
+# The string "BuGn" is the second last palette in the sequential display. The 3
+# tells the function how many different colors we want.
+
+showMe(cols)
+
+pal <- colorRampPalette(cols)
+
+showMe(pal(20))
+
+image(volcano, col = pal(20))
+
+image(volcano, col = p1(20))
