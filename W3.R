@@ -289,4 +289,135 @@ plot(colMeans(dataMatrixOrdered), xlab = "Column", ylab = "Column Mean", pch = 1
 
 # Plotting and color in R
 
+# Quite often, with plots made in R, you’ll see something like the following Christmas
+# themed plot.
 
+set.seed(19)
+x <- rnorm(30)
+y <- rnorm(30)
+plot(x, y, col = rep(1:3, each = 10), pch = 19)
+legend("bottomright", legend = paste("Group", 1:3),
+       col = 1:3, pch = 19, cex = 0.6)
+
+# With image function 
+
+par(mfrow = c(1, 2))
+image(volcano, col = heat.colors(10), main = "heat.colors()")
+image(volcano, col = topo.colors(10), main = "topo.colors()")
+
+# R has a number of utilities for dealing with colors and color palettes in your 
+# plots. For starters, the grDevices package has two functions:
+
+# • colorRamp: Take a palette of colors and return a function that takes valeus 
+# between 0 and 1, indicating the extremes of the color palette (e.g. see the 
+# gray() function)
+
+# • colorRampPalette: Take a palette of colors and return a function that takes
+# integer arguments and returns a vector of colors interpolating the palette 
+# (like heat.color or topo.colors())
+
+# colorRamp 
+
+pal <- colorRamp(c("red", "blue"))
+# red
+pal(0)
+
+# Notice that pal is in fact a function that was returned by colorRamp(). When 
+# we call pal(0) we get a 1 by 3 matrix. The numbers in the matrix will range 
+# from 0 to 255 and indicate the quantities of red, green, and blue (RGB) in 
+# columns 1, 2, and 3 respectively
+
+# blue
+pal(1)
+
+# purple-ish
+pal(0.5)
+
+
+# You can also pass a sequence of numbers to the pal() function.
+
+pal(seq(0, 1, len = 10))
+
+
+# colorRampPalette()
+
+# The colorRampPalette() function in manner similar to colorRamp((), 
+# however the function that it returns gives you a fixed number of colors that
+# interpolate the palette.
+
+pal <- colorRampPalette(c("red", "yellow"))
+# the pal() function takes an integer argument specifing the number of 
+# interpolated colors to return.
+
+# Just return red and yellow
+ pal(2)
+
+# Note that the colors are represented as hexadecimal strings. After the # 
+# symbol, the first two characters indicate the red amount, the second two 
+# the green amount, and the last two the blue amount. Because each position 
+# can have 16 possible values (0-9 and A-F),the two positions together allow for
+ # 256 possibilities per color.
+ 
+# Return 10 colors in between red and yellow
+pal(10)
+
+#Part of the art of creating good color schemes in data graphics is to start with
+# an appropriate color palette that you can then interpolate with a function 
+# like colorRamp() or colorRampPalette(). One package on CRAN that contains 
+# interesting and useful color palettes is the RColorBrewer6 package.
+
+# The RColorBrewer packge offers three types of palettes: 
+
+# • Sequential: for numerical data that are ordered
+# • Diverging: for numerical data that can be positive or negative, often 
+# representing deviations from some norm or baseline
+# • Qualitative: for qualitative unordered data
+
+library(RColorBrewer)
+par(mfrow = c(1,1), cex= 0.4)
+display.brewer.all()
+
+
+# Below we choose to use 3 colors from the “BuGn” palette, which is a sequential 
+# palette.
+
+cols <- brewer.pal(3, "BuGn")
+cols
+
+# Those three colors make up my initial palette. Then I can pass them to
+# colorRampPalette() to create my interpolating function.
+
+pal <- colorRampPalette(cols)
+
+# Now plot..
+image(volcano, col = pal(20))
+
+# The smoothScatter() function
+
+# A function that takes advantage of the color palettes in RColorBrewer is the
+# smoothScatter() function, which is very useful for making scatterplots of very
+# large datasets. The smoothScatter() function essentially gives you a 2-D 
+# histogram of the data using a sequential palette (here “Blues”)
+
+
+set.seed(1)
+x <- rnorm(10000)
+y <- rnorm(10000)
+plot(x,y)
+smoothScatter(x, y)
+
+# Color transparency can be added via the alpha parameter to rgb() to produce color
+# specifications with varying levels of transparency. When transparency is used you’ll
+# notice an extra two characters added to the right side of the hexadecimal
+# representation (there will be 8 positions instead of 6).
+
+# For example, if I wanted the color red with a high level of transparency, 
+# I could specify
+rgb(1, 0, 0, 0.1)
+
+set.seed(2)
+x <- rnorm(2000)
+y <- rnorm(2000)
+plot(x, y, pch = 19)
+
+plot(x, y, pch = 19, col = rgb(0,0,0,0.15))
