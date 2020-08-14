@@ -208,9 +208,12 @@ dataMatrix <- matrix(rnorm(400), nrow = 40)
 par(mar = c(4,4,2,2))
 image(1:10, 1:40, t(dataMatrix)[, nrow(dataMatrix):1])
 ?image
-image(t(dataMatrix)[, nrow(dataMatrix):1]) # you need to reverse the matrix
+ # you need to reverse the matrix
 
-# small investigation to order the matrix in Hirarchicall Clustering ###########
+################################################################################
+# small investigation to order the matrix in Hirarchicall Clustering 
+################################################################################
+# two graphical representations -- heatmap and image
 heat <- heatmap(dataMatrix)
 class(heat)
 
@@ -218,6 +221,17 @@ rev(heat$rowInd)
 heat$colInd
 
 dataclust <- dataMatrix[rev(heat$rowInd), heat$colInd]
+
+# dendogram 
+library(dplyr)
+hi <- dist(dataMatrix) %>% hclust
+hi$order
+order <- dataMatrix[hh$order, ]
+par(mfrow = c(1,2))
+image(t(dataMatrix)[, nrow(order):1])
+image(t(order)[, nrow(order):1])
+################################################################################
+#  tehe end 
 ################################################################################
 
 # Add a pattern 
@@ -240,14 +254,9 @@ heatmap(dataMatrix) # two set of column are clearly splitted
 # looking at the row and column means of the data.
 
 
-
 library(dplyr)
 hh <- dist(dataMatrix) %>% hclust
 hh$order
-
-source("myplclust.R")
-myplclust(hh,lab=rep(1:3,each=4),lab.col=rep(1:3,each=4))
-
 
 dataMatrixOrdered <- dataMatrix[hh$order, ]
 par(mfrow = c(1, 3))
@@ -278,10 +287,212 @@ plot(colMeans(dataMatrixOrdered), xlab = "Column", ylab = "Column Mean", pch = 1
 # characterized as lossy data compression. 
 # (FIRST: PCA, SECOND: SVD)
 
+# Principal components analysis (PCA) is simply an application of the SVD. The principal
+# components are equal to the right singular values if you first scale the data 
+# by subtracting the column mean and dividing each column by its standard 
+# deviation (that can be done with the scale() function).
 
-# SVD
 
-# PCA (uses SVD)
+# SVD --- to do PCA
+
+svd1 <- svd(scale(dataMatrixOrdered))
+
+# The svd() function returns a list containing three components named u, d, 
+# and v. The u and v components correspond to the matrices of left and right 
+# singular vectors, respectively, while the d component is a vector of singular
+# values, corresponding to the diagonal of the matrix D described above.
+
+# Below we plot the first left and right singular vectors along with the 
+# original data.
+
+par(mfrow = c(1, 3))
+image(t(dataMatrixOrdered)[, nrow(dataMatrixOrdered):1], main = "Original Data")
+plot(svd1$u[, 1], 40:1, ylab = "Row", xlab = "First left singular vector", pch = 19)
+plot(svd1$v[, 1], xlab = "Column", ylab = "First right singular vector", pch = 19)
+
+# If we believed that the first left and right singular vectors, call them u1
+# and v1, captured all of the variation in the data, then we could approximate 
+# the original data matrix with a compressed matrix
+
+# Approximate original data with outer product of first singular vectors
+approx <- with(svd1, outer(u[, 1], v[, 1]))
+# Plot original data and approximated data
+par(mfrow = c(1, 2))
+image(t(dataMatrixOrdered)[, nrow(dataMatrixOrdered):1], main = "Original Matrix")
+image(t(approx)[, nrow(approx):1], main = "Approximated Matrix")
+
+
+# Obviously, the two matrices are not identical, but the approximation seems
+# reasonable in this case. This is not surprising given that there was only one
+# real feature in the original data.
+
+
+### Components of the SVD - Variance explained
+
+# The statistical interpretation of singular values is in the form of variance 
+# in the data explained by the various components. The singular values produced
+# by the svd() are in order from largest to smallest and when squared are
+# proportional the amount of variance explained by a given singular vector.
+
+par(mfrow = c(1, 2))
+plot(svd1$d, xlab = "Column", ylab = "Singular value", pch = 19)
+plot(svd1$d^2/sum(svd1$d^2), xlab = "Column", ylab = "Prop. of variance explained",
+     pch = 19)
+
+# We can see that the first component explains about 40% of all the variation in
+# the data. In other words, even though there are 10 dimensions in the data, 40%
+# of the variation in the data can be explained by a single dimension. That
+# suggests that the data could be simplified quite a bit, a phenomenon we
+# observed in the last section where it appeared the data could be reasonably 
+# approximated by the first left and right singular vectors.
+
+### Relationship to principal components
+
+# As we mentioned above, the SVD has a close connection to principal components
+# analysis (PCA). PCA can be applied to the data by calling the prcomp() function 
+# in R. Here, we show that the first right singular vector from the SVD is equal 
+# to the first principal component vector returned by PCA.
+
+svd1 <- svd(scale(dataMatrixOrdered))
+pca1 <- prcomp(dataMatrixOrdered, scale = TRUE)
+plot(pca1$rotation[, 1], svd1$v[, 1], pch = 19, xlab = "Principal Component 1",
+        ylab = "Right Singular Vector 1")
+abline(c(0, 1))
+
+
+### Components of the SVD - Variance explained
+
+
+# To show how this works, here’s a very simple example. First, we’ll simulate a 
+# “dataset” that just takes two values, 0 and 1.
+
+constantMatrix <- dataMatrixOrdered * 0
+
+for (i in 1:dim(dataMatrixOrdered)[1]) {
+        constantMatrix[i, ] <- rep(c(0, 1), each = 5)
+        }
+
+# Then we can take the SVD of this matrix and show the singular values as well 
+# as the proportion of variance explained.
+
+svd1 <- svd(constantMatrix)
+par(mfrow = c(1, 3))
+image(t(constantMatrix)[, nrow(constantMatrix):1], main = "Original Data")
+plot(svd1$d, xlab = "Column", ylab = "Singular value", pch = 19)
+plot(svd1$d^2/sum(svd1$d^2), xlab = "Column", ylab = "Prop. of variance explained",
+        pch = 19)
+
+# As we can see from the right-most plot, 100% of the variation in this “dataset”
+# can be explained by the first singular value. Or, all of the variation in this
+# dataset occurs in a single dimension. This is clear because all of the 
+# variation in the data occurs as you go from left to right across the columns. 
+# Otherwise, the values of the data are constant.
+
+ 
+# Situation with two patterns
+
+set.seed(678910)
+for (i in 1:40) {
+        coinFlip1 <- rbinom(1, size = 1, prob = 0.5)
+        coinFlip2 <- rbinom(1, size = 1, prob = 0.5)
+        if (coinFlip1) {
+                ## Pattern 1
+                        dataMatrix[i, ] <- dataMatrix[i, ] + rep(c(0, 5), each = 5)
+                        }
+        if (coinFlip2) {
+                ## Pattern 2
+                        dataMatrix[i, ] <- dataMatrix[i, ] + rep(c(0, 5), 5)
+                        }
+        }
+library(dplyr)
+hh <- dist(dataMatrix) %>% hclust        
+dataMatrixOrdered <- dataMatrix[hh$order, ]
+
+# and the we plot it 
+
+svd2 <- svd(scale(dataMatrixOrdered))
+par(mfrow = c(1, 3))
+image(t(dataMatrixOrdered)[, nrow(dataMatrixOrdered):1], main = "Data")
+plot(rep(c(0, 1), each = 5), pch = 19, xlab = "Column", ylab = "Pattern 1", main = "Block pattern")
+plot(rep(c(0, 1), 5), pch = 19, xlab = "Column", ylab = "Pattern 2", main = "Alternating pattern")
+
+# this is the truth 
+# Svd ---------- can pick up both "patterns"
+
+# So, lets do it!
+
+svd2 <- svd(scale(dataMatrixOrdered))
+par(mfrow = c(1, 3))
+image(t(dataMatrixOrdered)[, nrow(dataMatrixOrdered):1])
+# plot the right singular vector = principal component vect or  
+plot(svd2$v[, 1], pch = 19, xlab = "Column", ylab = "First right singular vector")
+plot(svd2$v[, 2], pch = 19, xlab = "Column", ylab = "Second right singular vector")
+
+
+
+plot(svd2$u[, 1], pch = 19, xlab = "Column", ylab = "First left singular vector")
+plot(svd2$u[, 2], pch = 19, xlab = "Column", ylab = "Second left singular vector")
+
+# When we look at the variance explained, we can see that the first singular 
+# vector picks up a little more than 50% of the variation in the data.
+
+svd1 <- svd(scale(dataMatrixOrdered))
+par(mfrow = c(1, 2))
+plot(svd1$d, xlab = "Column", ylab = "Singular value", pch = 19)
+plot(svd1$d^2/sum(svd1$d^2), xlab = "Column",
+     ylab = "Percent of variance explained",
+     pch = 19)
+
+
+## Dealing with missing values
+
+dataMatrix2 <- dataMatrixOrdered
+# Randomly insert some missing data
+dataMatrix2[sample(1:100, size = 40, replace = FALSE)] <- NA
+
+svd1 <- svd(scale(dataMatrix2)) # error
+
+
+# using package impute:  do a k-nearest-neighbors imputation of the missing data
+BiocManager::install(c("impute"))
+library("impute")
+
+dataMatrix2 <- impute.knn(dataMatrix2)$data
+
+#  compare how the SVD performs on the original dataset (no missing data)
+# and the imputed dataset. 
+svd1 <- svd(scale(dataMatrixOrdered))
+svd2 <- svd(scale(dataMatrix2))
+par(mfrow = c(1, 2))
+plot(svd1$v[, 1], pch = 19, main = "Original dataset")
+plot(svd2$v[, 1], pch = 19, main = "Imputed dataset")
+
+
+# Example: Face data
+
+
+fileUrl <- "https://github.com/rdpeng/courses/raw/master/04_ExploratoryAnalysis/clusteringExample/data/face.rda"
+download.file(fileUrl, destfile = "./data/faces.rda", mode = "wb")
+
+load("./data/face.rda")
+par(mfrow =c(1,1), mar = c(4,4,2,2))
+image(t(faceData)[, nrow(faceData):1])
+
+svd1 <- svd(scale(faceData))
+plot(svd1$d^2/sum(svd1$d^2), pch = 19, xlab = "Singular vector", ylab = "Variance explained")
+
+# Note that %*% is matrix multiplication Here svd1$d[1] is a constant
+approx1 <- svd1$u[, 1] %*% t(svd1$v[, 1]) * svd1$d[1]
+ 
+# In these examples we need to make the diagonal matrix out of d
+approx5 <- svd1$u[, 1:5] %*% diag(svd1$d[1:5]) %*% t(svd1$v[, 1:5])
+approx10 <- svd1$u[, 1:10] %*% diag(svd1$d[1:10]) %*% t(svd1$v[, 1:10])
+
+par(mfrow = c(1, 4))
+image(t(approx1)[, nrow(approx1):1], main = "1 vector")
+image(t(approx5)[, nrow(approx5):1], main = "5 vectors")
+image(t(approx10)[, nrow(approx10):1], main = "10 vectors")
+image(t(faceData)[, nrow(faceData):1], main = "Original data")
 
 ################################################################################
                                 # Lesson 3 # 
