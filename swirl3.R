@@ -213,3 +213,105 @@ showMe(pal(20))
 image(volcano, col = pal(20))
 
 image(volcano, col = p1(20))
+
+################################################################################
+
+# SDV: entails processes which finding subsets of variables in datasets that
+# contain their essences
+
+head(dataMatrix)
+
+heatmap(dataMatrix)
+
+myedit("addPatt.R")
+
+source("addPatt.R", local = TRUE)
+
+heatmap(dataMatrix)
+
+# SVD
+
+# As data scientists, we'd like to find a smaller set of multivariate variables that
+# are uncorrelated AND explain as much variance (or variability) of the data as
+# possible. This is a statistical approach.
+
+mat
+
+svd(mat)
+
+# REMEMBER ---- the number of single values is equal to the number of lineal 
+# independent vectors!!!!! (NO NO NO :( )
+
+matu %*% diag  %*%  t(matv) 
+
+# PCA
+
+# Basically, PCA is a method to reduce a high-dimensional data set to its essential
+# elements (not lose information) and explain the variability in the data.
+
+# but you should know that SVD and PCA are closely related.
+
+# scale mat, our simple example data matrix.  This means that we subtract the
+# column mean from every element and divide the result by the column standard 
+# deviation. 
+
+svd(scale(mat))
+
+# Now run the R program prcomp on scale(mat). This will give you the principal
+# components of mat. 
+
+prcomp(scale(mat)) # Notice that the principal components of the scaled matrix, 
+# shown in the Rotation component of the prcomp output, ARE the columns of V
+
+#  Thus, PCA of a scaled matrix yields the V matrix (right singular vectors) of 
+# the same scaled matrix.
+
+svd1$v[,1] 
+
+# the first LEFT singular vector it is associated with the ROW means of the
+# clustered data
+
+# the first RIGHT singular vector it's associated with the COLUMN means of the
+# clustered data
+
+# Why were the first columns of both the U and V matrices so special? 
+# Well as it happens, the D matrix of the SVD explains this phenomenon. It is
+# an aspect of SVD called variance explained. 
+
+# The diagonal entries of D are like weights for the U and V columns accounting 
+# for the variation in the data. 
+
+svd1$d
+
+head(constantMatrix)
+
+svd2$d
+
+# The question is, "Can our analysis detect these patterns just from the data?"
+# Let's see what SVD shows. 
+# Since we're interested in patterns on columns we'll look at the first two 
+# right singular vectors (columns of V) to see if they show any evidence of the
+# patterns.
+
+svd2$v[,1:2]
+
+svd2$d
+
+# So the first element which showed the difference between the left and right halves
+# of the matrix accounts for roughly 50% of the variation in the matrix, and the
+# second element which picked up the alternating pattern accounts for 18% of the
+# variance.
+
+dim(faceData)
+
+a1 <- (svd1$u[,1] * svd1$d[1]) %*% t(svd1$v[,1])
+
+myImage(a1)
+
+a2 <- svd1$u[,1:2] %*% diag(svd1$d[1:2]) %*% t(svd1$v[,1:2])
+
+myImage(a2)
+
+myImage(svd1$u[,1:5] %*% diag(svd1$d[1:5]) %*% t(svd1$v[,1:5]))
+
+myImage(svd1$u[,1:10] %*% diag(svd1$d[1:10]) %*% t(svd1$v[,1:10]))
