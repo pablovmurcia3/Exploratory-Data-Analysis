@@ -123,3 +123,198 @@ plot(kClust$center[6,1:10],pch=19,ylab="Cluster Center",xlab="")
 
 # so.. it is usefull to predict!
 
+
+################################################################################
+                                # Lesson 1 # 
+################################################################################
+
+# Download
+fileUrl <- "https://github.com/bcaffo/courses/raw/master/04_ExploratoryAnalysis/CaseStudy/pm25_data.zip"
+download.file(fileUrl, destfile = "./data/EPA.zip", mode="wb")
+unzip(zipfile = "./data/EPA.zip")
+
+# Read
+pm0 <- read.table("./pm25_data/RD_501_88101_1999-0.txt", comment.char = "#", 
+                  header = FALSE,  sep = "|", na.strings = "")
+pm1 <- read.table("./pm25_data/RD_501_88101_2012-0.txt", comment.char = "#", 
+                  header = FALSE,  sep = "|", na.strings = "")
+
+cnames <- readLines("./pm25_data/RD_501_88101_1999-0.txt",1)
+cnames
+
+cnames <- strsplit(cnames, "|", fixed = TRUE)
+cnames
+names(pm0) <- cnames[[1]]
+names(pm1) <- cnames[[1]]
+
+names(pm0) <- make.names(cnames[[1]])
+names(pm1) <- make.names(cnames[[1]])
+
+str(pm0)
+str(pm1)
+
+# Missing values 
+
+mean(is.na(pm0$Sample.Value)) # 11% of the data is Na
+mean(is.na(pm1$Sample.Value)) # 5% of the data is Na
+
+# Some summary 
+
+summary(pm1$Sample.Value)
+summary(pm0$Sample.Value)
+
+# Some basic graphics
+
+boxplot(pm0$Sample.Value, pm1$Sample.Value)
+boxplot(log10(pm0$Sample.Value), log10(pm1$Sample.Value))
+
+# Negative vales
+
+which(pm1$Sample.Value<0)
+n <- pm1$Sample.Value[which(pm1$Sample.Value<0)]
+
+# or
+
+negative <- pm1$Sample.Value<0
+sum(negative, na.rm = TRUE)
+mean(negative, na.rm = TRUE)
+
+# Dates
+
+dates <- pm1$Date
+
+str(dates)
+
+dates <- as.character(dates)
+
+dates <- as.Date(dates, "Y%m%d")
+str(dates) # it doesnt work  .....................
+
+
+# or 
+
+str(pm1$Date)
+
+library(lubridate)
+
+dates <- ymd(pm1$Date)
+
+str(dates)
+
+hist(dates, "month")
+
+hist(dates[negative], "month")
+
+
+## We will use only one monitor 
+
+
+site0 <- unique(subset(pm0, State.Code ==36, c(County.Code, Site.ID)))
+site1 <- unique(subset(pm1, State.Code ==36, c(County.Code, Site.ID)))
+
+site0 <- paste(site0[,1], site0[,2], sep = ".")
+site1 <- paste(site1[,1], site1[,2], sep = ".")
+
+
+# intersect function 
+
+both <- intersect(site0, site1)
+
+# pick the monitor with a large number of observations
+
+pm0$county.site <- with(pm0, paste(County.Code, Site.ID, sep = "."))
+pm1$county.site <- with(pm1, paste(County.Code, Site.ID, sep = "."))
+
+cnt0 <- subset(pm0, State.Code == 36 & county.site %in% both)
+cnt1 <- subset(pm1, State.Code == 36 & county.site %in% both)
+
+tapply(cnt0$POC, cnt0$county.site, length)
+tapply(cnt1$POC, cnt1$coun, length)
+
+# we should select the county-monitor 63.2008
+
+pm1sub <- subset(pm1, State.Code == 36 & County.Code ==  63 & Site.ID == 2008)
+pm0sub <- subset(pm0, State.Code == 36 & County.Code ==  63 & Site.ID == 2008)
+
+dim(pm0sub)
+dim(pm1sub)
+
+## Time series
+
+library(lubridate)
+pm1sub$Date <- ymd(pm1sub$Date)
+pm0sub$Date <- ymd(pm0sub$Date)
+
+par (mfrow =c(1,2), mar = c(4,4,2,1))
+plot(pm0sub$Date, pm0sub$Sample.Value)
+abline(h = median(pm0sub$Sample.Value, na.rm = T))
+plot(pm1sub$Date, pm1sub$Sample.Value, pch = 20)
+abline(h = median(pm1sub$Sample.Value, na.rm = T))
+
+# we need to standardize the range of the y axis
+
+rng <- range(pm0sub$Sample.Value, pm1sub$Sample.Value, na.rm = T)
+
+par (mfrow =c(1,2), mar = c(4,4,2,1))
+plot(pm0sub$Date, pm0sub$Sample.Value, pch = 20, ylim = rng)
+abline(h = median(pm0sub$Sample.Value, na.rm = T))
+plot(pm1sub$Date, pm1sub$Sample.Value, pch = 20, ylim = rng)
+abline(h = median(pm1sub$Sample.Value, na.rm = T))
+
+      
+## Now we are gonna look individual states 
+
+# My try 
+
+library(dplyr)
+
+pm1mbs <- pm1  %>% group_by(State.Code)  %>%
+        summarise(meansv = mean (Sample.Value, na.rm = TRUE))
+
+pm0mbs <- pm0  %>% group_by(State.Code)  %>%
+        summarise(meansv = mean (Sample.Value, na.rm = TRUE))
+
+
+pm1mbs$year = rep(2012)
+pm0mbs$year = rep(1999)
+
+
+final <- rbind(pm1mbs, pm0mbs)
+
+library(lattice)
+
+xyplot(meansv ~ year | factor(State.Code), 
+       panel = function(x , y, ...) {
+        panel.xyplot(x,y, ...) # first call the default panel function for xyplot
+        panel.lmline(x,y, col = 1) # Add horizontal line at the median
+        },
+       pch = 20,
+       lty = 4,
+       data = final)
+
+
+xyplot(meansv ~ year | factor(State.Code), 
+       pch = 20,
+       type = "b",
+       lty = 1,
+       data = final)
+
+
+# In video
+
+mn0 <- with(pm0, tapply(Sample.Value, State.Code, mean, na.rm = TRUE))
+mn1 <- with(pm1, tapply(Sample.Value, State.Code, mean, na.rm = TRUE))
+
+d0 = data.frame(state = names(mn0), mean = mn0)
+d1 = data.frame(state = names(mn1), mean = mn1)
+
+mrg <- merge(d0, d1, by = "state")
+
+
+par(mfrow = c(1,1))
+with(mrg, plot(rep(1999,52), mrg[,2], xlim = c(1998,2013),
+               ylim = range (mrg$mean.x, mrg$mean.y)))
+with(mrg, points(rep(2012,52), mrg[,3]))
+segments(rep(1999,52), mrg[,2], rep(2012,52), mrg[,3])
+     
+         
