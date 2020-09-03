@@ -26,42 +26,34 @@ library(dplyr)
 library(RColorBrewer)
 
 
-pmyear <- NEI %>% group_by(year)  %>% summarise(meanpm = mean(Emissions))
-
-cols <- brewer.pal(8, "Dark2")
-pal <- colorRampPalette(cols)
-image(volcano, col = pal(20))
+pmyear <- NEI %>% group_by(year)  %>% summarise(sumpm = sum(Emissions))
 
 
-with(pmyear, {plot(year, meanpm, 
+with(pmyear, {plot(year, sumpm, 
                    type = "l",
                    lwd = 2,
-                   main = "Total emissions from PM2.5",
-                   ylab ="Tons of fine Particulate matter (PM25)",
+                   main = expression("Total PM"[2.5]*" emissions in the United States from 1999 to 2008"),
+                   ylab = expression("Tons of PM"[2.5]*" emissions"),
                    xlab = "Year",
-                   col = pal(1),
+                   col = "#1B9E77",
                    )})
 
 # 2.
 
 pmyearbaltimore <- NEI %>% filter(fips == "24510") %>%
         group_by(year) %>%
-        summarise(meanpm = mean(Emissions))
+        summarise(sumpm = sum(Emissions))
 
 
-with(pmyearbaltimore, {plot(year, meanpm, 
+with(pmyearbaltimore, {plot(year, sumpm, 
                    type = "l",
                    lwd = 2,
-                   main = "Total emissions from PM2.5 in Baltimore City",
-                   ylab ="Tons of particulate matter (PM2.5)",
+                   main =  expression("Total PM"[2.5]*" emissions in Baltimore City from 1999 to 2008"),
+                   ylab =expression("Tons of PM"[2.5]*" emissions"),
                    xlab = "Year",
-                   col = pal(1),
+                   col = "#1B9E77",
 )})     
 
-
-balti = subset(NEI, fips == "24510")
-polutant <- tapply(balti$Emissions, balti$year, mean)
-plot(polutant, type = "l")
 
 # 3
 
@@ -69,16 +61,16 @@ library(ggplot2)
 
 pmbaltimore <- NEI %>% filter(fips == "24510") %>%
         group_by(type, year) %>%
-        summarise(meanpm = mean(Emissions))
+        summarise(sumpm = sum(Emissions))
 
-g <- ggplot(pmbaltimore, aes(year, meanpm))
+g <- ggplot(pmbaltimore, aes(year, sumpm))
 
-p <- g + geom_line(color = pal(1), size= 1.3) +
-        facet_grid( .~ factor(type)) +
-        labs(title = "Total emissions from PM2.5 in Baltimore City according to 
-             the type of the source", y = "Tons of particulate matter (PM2.5)",
-             x = "Year") +
-        theme(plot.title = element_text(hjust = 0.5, vjust = 2))
+p <- g + geom_line(aes(color = type), size= 1.3) +
+        facet_grid( .~ type) +
+        labs(title = expression("Total PM"[2.5]*" emissions by type of source in Baltimore City from 1999 to 2008"),
+             x = "Year", y = expression("Tons of PM"[2.5]*" emissions")) +
+        theme(plot.title = element_text(hjust = 0.5, vjust = 2)) +
+        scale_colour_brewer(palette="Dark2")
 
 p
 
@@ -88,21 +80,63 @@ coalssc <- SCC$SCC[grep("Coal",SCC$EI.Sector)]
 
 pmcoal <- NEI %>% filter(NEI$SCC %in% coalssc)  %>% 
         group_by(year) %>%
-        summarise(meanpm = mean(Emissions))
-        
+        summarise(sumpm = sum(Emissions))
 
-g <- ggplot(pmcoal, aes(year, meanpm))
 
-p <- g + geom_line(color = pal(1), size= 1.3) 
+g <- ggplot(pmcoal, aes(year, sumpm))
+p <- g +geom_line(color = "#1B9E77", size= 1.3) + 
+        labs(title = expression("Coal combustion PM"[2.5]*" emissions in the United States from 1999 to 2008"),
+             y = expression("Tons of PM"[2.5]*" emissions"),
+             x = "Year") + 
+        theme(plot.title = element_text(hjust = 0.5, vjust = 2)) 
 p
 
 # 5
 
-Vehiclessc <- SCC$SCC[grep("Motor Vehicles",SCC$SCC.Level.Three)] 
+Vehiclessc <- SCC$SCC[grep("Vehicles",SCC$SCC.Level.Two)] 
 
-pmcoal <- NEI %>% filter(SCC %in% Vehiclessc)  %>% 
+baltimoreVehicle <- NEI %>% filter(fips == "24510") %>% 
+        filter(SCC %in% Vehiclessc) %>% 
         group_by(year) %>%
-        summarise(meanpm = mean(Emissions))
+        summarise(sumpm = sum(Emissions))
+
+g <- ggplot(baltimoreVehicle, aes(year, sumpm))
+p <- g +geom_line(color = "#1B9E77", size= 1.3) +
+        labs(title = expression("Motor Vehicle PM"[2.5]*" emissions in Baltimore City from 1999 to 2008"),
+             y = expression("Tons of PM"[2.5]*" emissions"),
+             x = "Year") + 
+        theme(plot.title = element_text(hjust = 0.5, vjust = 2)) 
+p
+
+# 6
 
 
+Vehiclessc <- SCC$SCC[grep("Vehicles",SCC$SCC.Level.Two)] 
+
+baltimoreVehicle <- NEI %>% filter(fips == "24510") %>% 
+        filter(SCC %in% Vehiclessc) %>% 
+        group_by(year) %>%
+        summarise(sumpm = sum(Emissions))
+
+losangelesVehicle <- NEI %>% filter(fips == "06037") %>% 
+        filter(SCC %in% Vehiclessc) %>% 
+        group_by(year) %>%
+        summarise(sumpm = sum(Emissions))
+
+
+baltimoreAngeles <- data.frame(rbind(baltimoreVehicle,losangelesVehicle),
+                              city = c(rep("Baltimore City",4),
+                                       rep("los Angeles County", 4)))
+
+g <- ggplot(baltimoreAngeles, aes(year, sumpm))
+p <- g +geom_line(aes(color = city),size= 1.3) +
+        facet_wrap(.~factor(city)) +
+        labs(title = expression("Motor Vehicle PM"[2.5]*" emissions from 1999 to 2008"),
+             x = "Year", y = expression("Tons of PM"[2.5]*" emissions")) +
+        theme(plot.title = element_text(hjust = 0.5, vjust = 2)) + 
+        scale_colour_brewer(palette="Dark2")
+
+p
+        
+p
 
